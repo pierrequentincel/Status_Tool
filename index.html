@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Tool - Progress Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2c5282;
+            font-size: 24px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2c5282;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a365d;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-danger {
+            background: #c53030;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #9b2c2c;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .tables-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c5282;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .table-title:hover {
+            background: #edf2f7;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .data-table th:first-child {
+            text-align: left;
+            width: 150px;
+        }
+
+        .data-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: #4a5568;
+            background: #f7fafc;
+        }
+
+        .column-header {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .column-header:hover {
+            background: #edf2f7;
+        }
+
+        .row-label {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .row-label:hover {
+            background: #edf2f7;
+        }
+
+        .pie-cell {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .pie-cell:hover {
+            transform: scale(1.1);
+        }
+
+        .text-cell {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .text-cell:hover {
+            background: #edf2f7;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            min-width: 400px;
+            max-width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #2c5282;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2c5282;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+        }
+
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        /* Delete buttons in table */
+        .delete-col-btn,
+        .delete-row-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: #fed7d7;
+            color: #c53030;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        th:hover .delete-col-btn,
+        td:first-child:hover .delete-row-btn {
+            opacity: 1;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            padding: 15px 20px;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .legend-amber {
+            background: #F5DEB3;
+        }
+
+        .legend-green {
+            background: #4CAF50;
+        }
+
+        .legend-red {
+            background: #F44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Status Tool - Progress Dashboard</h1>
+        <div class="header-buttons">
+            <button class="btn-primary" onclick="openAddTableModal()">+ Add Table</button>
+            <button class="btn-secondary" onclick="exportData()">Export Data</button>
+            <button class="btn-secondary" onclick="importData()">Import Data</button>
+        </div>
+    </div>
+
+    <div class="tables-container" id="tablesContainer">
+        <div class="empty-state" id="emptyState">
+            <h3>No tables yet</h3>
+            <p>Click "Add Table" to create your first progress tracking table</p>
+        </div>
+    </div>
+
+    <!-- Add Table Modal -->
+    <div class="modal-overlay" id="addTableModal">
+        <div class="modal">
+            <h2>Add New Table</h2>
+            <div class="form-group">
+                <label>Table Name</label>
+                <input type="text" id="newTableName" placeholder="e.g., DNO, MNO">
+            </div>
+            <div class="form-group">
+                <label>Columns (comma-separated)</label>
+                <input type="text" id="newTableColumns" placeholder="e.g., Master Data, Transaction Data, Inventory">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('addTableModal')">Cancel</button>
+                <button class="btn-primary" onclick="addTable()">Create Table</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Row Modal -->
+    <div class="modal-overlay" id="addRowModal">
+        <div class="modal">
+            <h2>Add New Row</h2>
+            <div class="form-group">
+                <label>Row Label</label>
+                <input type="text" id="newRowLabel" placeholder="e.g., Data Collection">
+            </div>
+            <div class="form-group">
+                <label>Row Type</label>
+                <select id="newRowType">
+                    <option value="pie">Pie Chart (Progress)</option>
+                    <option value="text">Text (Due Date, Status)</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('addRowModal')">Cancel</button>
+                <button class="btn-primary" onclick="addRow()">Add Row</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Column Modal -->
+    <div class="modal-overlay" id="addColumnModal">
+        <div class="modal">
+            <h2>Add New Column</h2>
+            <div class="form-group">
+                <label>Column Name</label>
+                <input type="text" id="newColumnName" placeholder="e.g., New Category">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('addColumnModal')">Cancel</button>
+                <button class="btn-primary" onclick="addColumn()">Add Column</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Cell Modal (Pie) -->
+    <div class="modal-overlay" id="editPieModal">
+        <div class="modal">
+            <h2>Edit Progress</h2>
+            <div class="form-group">
+                <label>Last Period Progress (%)</label>
+                <input type="number" id="lastPeriodValue" min="0" max="100" placeholder="0-100">
+            </div>
+            <div class="form-group">
+                <label>Current Period Progress (%)</label>
+                <input type="number" id="currentPeriodValue" min="0" max="100" placeholder="0-100">
+            </div>
+            <div class="preview-container">
+                <div id="piePreview"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('editPieModal')">Cancel</button>
+                <button class="btn-primary" onclick="savePieCell()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Cell Modal (Text) -->
+    <div class="modal-overlay" id="editTextModal">
+        <div class="modal">
+            <h2>Edit Text</h2>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="text" id="textCellValue" placeholder="e.g., Done, TBD, Jan-15">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('editTextModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveTextCell()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Name Modal -->
+    <div class="modal-overlay" id="editNameModal">
+        <div class="modal">
+            <h2 id="editNameTitle">Edit Name</h2>
+            <div class="form-group">
+                <label id="editNameLabel">Name</label>
+                <input type="text" id="editNameValue">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('editNameModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveNameEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure
+        let data = {
+            tables: []
+        };
+
+        // Current editing context
+        let currentEdit = {
+            tableIndex: null,
+            rowIndex: null,
+            colIndex: null,
+            editType: null // 'table', 'column', 'row'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            render();
+
+            // Add input listeners for preview
+            document.getElementById('lastPeriodValue').addEventListener('input', updatePiePreview);
+            document.getElementById('currentPeriodValue').addEventListener('input', updatePiePreview);
+        });
+
+        // LocalStorage functions
+        function saveData() {
+            localStorage.setItem('statusToolData', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('statusToolData');
+            if (saved) {
+                data = JSON.parse(saved);
+            }
+        }
+
+        // Render functions
+        function render() {
+            const container = document.getElementById('tablesContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (data.tables.length === 0) {
+                emptyState.style.display = 'block';
+                container.innerHTML = '';
+                container.appendChild(emptyState);
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = data.tables.map((table, tableIndex) => renderTable(table, tableIndex)).join('');
+        }
+
+        function renderTable(table, tableIndex) {
+            const rows = table.rows.map((row, rowIndex) => {
+                const cells = row.cells.map((cell, colIndex) => {
+                    if (row.type === 'pie') {
+                        return `<td>
+                            <div class="pie-cell" onclick="openEditPieModal(${tableIndex}, ${rowIndex}, ${colIndex})">
+                                ${renderPieChart(cell.lastPeriod, cell.currentPeriod, 60)}
+                            </div>
+                        </td>`;
+                    } else {
+                        return `<td>
+                            <div class="text-cell" onclick="openEditTextModal(${tableIndex}, ${rowIndex}, ${colIndex})">
+                                ${cell || '-'}
+                            </div>
+                        </td>`;
+                    }
+                }).join('');
+
+                return `<tr>
+                    <td>
+                        <span class="row-label" onclick="openEditNameModal('row', ${tableIndex}, ${rowIndex})">${row.label}</span>
+                        <button class="delete-row-btn" onclick="deleteRow(${tableIndex}, ${rowIndex})">Delete</button>
+                    </td>
+                    ${cells}
+                </tr>`;
+            }).join('');
+
+            const columnHeaders = table.columns.map((col, colIndex) =>
+                `<th>
+                    <span class="column-header" onclick="openEditNameModal('column', ${tableIndex}, ${colIndex})">${col}</span>
+                    <button class="delete-col-btn" onclick="deleteColumn(${tableIndex}, ${colIndex})">Delete</button>
+                </th>`
+            ).join('');
+
+            return `
+                <div class="table-wrapper">
+                    <div class="table-header">
+                        <span class="table-title" onclick="openEditNameModal('table', ${tableIndex})">${table.name}</span>
+                        <div class="table-actions">
+                            <button class="btn-secondary btn-small" onclick="openAddRowModal(${tableIndex})">+ Row</button>
+                            <button class="btn-secondary btn-small" onclick="openAddColumnModal(${tableIndex})">+ Column</button>
+                            <button class="btn-danger btn-small" onclick="deleteTable(${tableIndex})">Delete Table</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>${table.name}</th>
+                                ${columnHeaders}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color legend-amber"></div>
+                            <span>Last Period</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-green"></div>
+                            <span>Positive Progress</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-red"></div>
+                            <span>Regression</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPieChart(lastPeriod, currentPeriod, size = 60) {
+            const radius = size / 2 - 5;
+            const cx = size / 2;
+            const cy = size / 2;
+            const circumference = 2 * Math.PI * radius;
+
+            // Calculate stroke dash arrays
+            const lastDash = (lastPeriod / 100) * circumference;
+            const currentDash = (currentPeriod / 100) * circumference;
+
+            // Determine color based on progress
+            const progressColor = currentPeriod >= lastPeriod ? '#4CAF50' : '#F44336';
+
+            return `
+                <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                    <!-- Background circle -->
+                    <circle cx="${cx}" cy="${cy}" r="${radius}"
+                        fill="#F5DEB3" stroke="none"/>
+
+                    <!-- Last period (amber arc) -->
+                    <circle cx="${cx}" cy="${cy}" r="${radius - 8}"
+                        fill="none"
+                        stroke="#DEB887"
+                        stroke-width="8"
+                        stroke-dasharray="${lastDash} ${circumference}"
+                        transform="rotate(-90 ${cx} ${cy})"/>
+
+                    <!-- Current period (green/red arc) -->
+                    <circle cx="${cx}" cy="${cy}" r="${radius - 8}"
+                        fill="none"
+                        stroke="${progressColor}"
+                        stroke-width="8"
+                        stroke-dasharray="${currentDash} ${circumference}"
+                        stroke-dashoffset="${lastDash}"
+                        transform="rotate(-90 ${cx} ${cy})"/>
+                </svg>
+            `;
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openAddTableModal() {
+            document.getElementById('newTableName').value = '';
+            document.getElementById('newTableColumns').value = '';
+            openModal('addTableModal');
+        }
+
+        function openAddRowModal(tableIndex) {
+            currentEdit.tableIndex = tableIndex;
+            document.getElementById('newRowLabel').value = '';
+            document.getElementById('newRowType').value = 'pie';
+            openModal('addRowModal');
+        }
+
+        function openAddColumnModal(tableIndex) {
+            currentEdit.tableIndex = tableIndex;
+            document.getElementById('newColumnName').value = '';
+            openModal('addColumnModal');
+        }
+
+        function openEditPieModal(tableIndex, rowIndex, colIndex) {
+            currentEdit = { tableIndex, rowIndex, colIndex };
+            const cell = data.tables[tableIndex].rows[rowIndex].cells[colIndex];
+            document.getElementById('lastPeriodValue').value = cell.lastPeriod || 0;
+            document.getElementById('currentPeriodValue').value = cell.currentPeriod || 0;
+            updatePiePreview();
+            openModal('editPieModal');
+        }
+
+        function openEditTextModal(tableIndex, rowIndex, colIndex) {
+            currentEdit = { tableIndex, rowIndex, colIndex };
+            const cell = data.tables[tableIndex].rows[rowIndex].cells[colIndex];
+            document.getElementById('textCellValue').value = cell || '';
+            openModal('editTextModal');
+        }
+
+        function openEditNameModal(editType, tableIndex, index = null) {
+            currentEdit = { tableIndex, editType };
+            const titleEl = document.getElementById('editNameTitle');
+            const labelEl = document.getElementById('editNameLabel');
+            const inputEl = document.getElementById('editNameValue');
+
+            if (editType === 'table') {
+                titleEl.textContent = 'Edit Table Name';
+                labelEl.textContent = 'Table Name';
+                inputEl.value = data.tables[tableIndex].name;
+            } else if (editType === 'column') {
+                currentEdit.colIndex = index;
+                titleEl.textContent = 'Edit Column Name';
+                labelEl.textContent = 'Column Name';
+                inputEl.value = data.tables[tableIndex].columns[index];
+            } else if (editType === 'row') {
+                currentEdit.rowIndex = index;
+                titleEl.textContent = 'Edit Row Label';
+                labelEl.textContent = 'Row Label';
+                inputEl.value = data.tables[tableIndex].rows[index].label;
+            }
+            openModal('editNameModal');
+        }
+
+        function updatePiePreview() {
+            const lastPeriod = parseInt(document.getElementById('lastPeriodValue').value) || 0;
+            const currentPeriod = parseInt(document.getElementById('currentPeriodValue').value) || 0;
+            document.getElementById('piePreview').innerHTML = renderPieChart(lastPeriod, currentPeriod, 100);
+        }
+
+        // CRUD functions
+        function addTable() {
+            const name = document.getElementById('newTableName').value.trim();
+            const columnsStr = document.getElementById('newTableColumns').value.trim();
+
+            if (!name) {
+                alert('Please enter a table name');
+                return;
+            }
+
+            const columns = columnsStr ? columnsStr.split(',').map(c => c.trim()).filter(c => c) : ['Column 1'];
+
+            data.tables.push({
+                name,
+                columns,
+                rows: []
+            });
+
+            saveData();
+            render();
+            closeModal('addTableModal');
+        }
+
+        function addRow() {
+            const label = document.getElementById('newRowLabel').value.trim();
+            const type = document.getElementById('newRowType').value;
+
+            if (!label) {
+                alert('Please enter a row label');
+                return;
+            }
+
+            const table = data.tables[currentEdit.tableIndex];
+            const cells = table.columns.map(() =>
+                type === 'pie' ? { lastPeriod: 0, currentPeriod: 0 } : ''
+            );
+
+            table.rows.push({ label, type, cells });
+            saveData();
+            render();
+            closeModal('addRowModal');
+        }
+
+        function addColumn() {
+            const name = document.getElementById('newColumnName').value.trim();
+
+            if (!name) {
+                alert('Please enter a column name');
+                return;
+            }
+
+            const table = data.tables[currentEdit.tableIndex];
+            table.columns.push(name);
+
+            // Add empty cell to each row
+            table.rows.forEach(row => {
+                if (row.type === 'pie') {
+                    row.cells.push({ lastPeriod: 0, currentPeriod: 0 });
+                } else {
+                    row.cells.push('');
+                }
+            });
+
+            saveData();
+            render();
+            closeModal('addColumnModal');
+        }
+
+        function savePieCell() {
+            const lastPeriod = parseInt(document.getElementById('lastPeriodValue').value) || 0;
+            const currentPeriod = parseInt(document.getElementById('currentPeriodValue').value) || 0;
+
+            data.tables[currentEdit.tableIndex].rows[currentEdit.rowIndex].cells[currentEdit.colIndex] = {
+                lastPeriod: Math.min(100, Math.max(0, lastPeriod)),
+                currentPeriod: Math.min(100, Math.max(0, currentPeriod))
+            };
+
+            saveData();
+            render();
+            closeModal('editPieModal');
+        }
+
+        function saveTextCell() {
+            const value = document.getElementById('textCellValue').value.trim();
+            data.tables[currentEdit.tableIndex].rows[currentEdit.rowIndex].cells[currentEdit.colIndex] = value;
+            saveData();
+            render();
+            closeModal('editTextModal');
+        }
+
+        function saveNameEdit() {
+            const value = document.getElementById('editNameValue').value.trim();
+
+            if (!value) {
+                alert('Name cannot be empty');
+                return;
+            }
+
+            if (currentEdit.editType === 'table') {
+                data.tables[currentEdit.tableIndex].name = value;
+            } else if (currentEdit.editType === 'column') {
+                data.tables[currentEdit.tableIndex].columns[currentEdit.colIndex] = value;
+            } else if (currentEdit.editType === 'row') {
+                data.tables[currentEdit.tableIndex].rows[currentEdit.rowIndex].label = value;
+            }
+
+            saveData();
+            render();
+            closeModal('editNameModal');
+        }
+
+        function deleteTable(tableIndex) {
+            if (confirm(`Are you sure you want to delete the table "${data.tables[tableIndex].name}"?`)) {
+                data.tables.splice(tableIndex, 1);
+                saveData();
+                render();
+            }
+        }
+
+        function deleteRow(tableIndex, rowIndex) {
+            const row = data.tables[tableIndex].rows[rowIndex];
+            if (confirm(`Are you sure you want to delete the row "${row.label}"?`)) {
+                data.tables[tableIndex].rows.splice(rowIndex, 1);
+                saveData();
+                render();
+            }
+        }
+
+        function deleteColumn(tableIndex, colIndex) {
+            const col = data.tables[tableIndex].columns[colIndex];
+            if (confirm(`Are you sure you want to delete the column "${col}"?`)) {
+                data.tables[tableIndex].columns.splice(colIndex, 1);
+                data.tables[tableIndex].rows.forEach(row => {
+                    row.cells.splice(colIndex, 1);
+                });
+                saveData();
+                render();
+            }
+        }
+
+        // Export/Import functions
+        function exportData() {
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'status-tool-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        if (imported.tables && Array.isArray(imported.tables)) {
+                            data = imported;
+                            saveData();
+                            render();
+                            alert('Data imported successfully!');
+                        } else {
+                            alert('Invalid data format');
+                        }
+                    } catch (err) {
+                        alert('Error parsing JSON file');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    </script>
+</body>
+</html>
