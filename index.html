@@ -153,6 +153,8 @@
             background: #f7fafc;
             text-align: left;
             padding-left: 15px;
+            vertical-align: middle;
+            position: relative;
         }
 
         .column-header {
@@ -313,7 +315,13 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 11px;
-            margin-left: 8px;
+        }
+
+        .delete-row-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         th:hover .delete-col-btn,
