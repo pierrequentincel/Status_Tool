@@ -1,0 +1,74 @@
+{
+  "tables": [
+    {
+      "name": "DNO",
+      "columns": ["Master Data", "Transaction Data", "Inventory", "Cost", "Business Projections", "Finance"],
+      "rows": [
+        {
+          "label": "Data Collection",
+          "type": "pie",
+          "cells": [
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 95, "currentPeriod": 100 },
+            { "lastPeriod": 95, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 90, "currentPeriod": 95 },
+            { "lastPeriod": 100, "currentPeriod": 100 }
+          ]
+        },
+        {
+          "label": "Data Validation",
+          "type": "pie",
+          "cells": [
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 95, "currentPeriod": 100 },
+            { "lastPeriod": 95, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 85, "currentPeriod": 90 },
+            { "lastPeriod": 100, "currentPeriod": 100 }
+          ]
+        },
+        {
+          "label": "Due Date",
+          "type": "text",
+          "cells": ["Done", "Jan-15 (CEL)", "Done", "Done", "Jan-19 (CEL)", "Done"]
+        }
+      ]
+    },
+    {
+      "name": "MNO",
+      "columns": ["RM/PM/ Conversion cost", "Batang costing data", "Production Capacity", "PTG Mapping", "Production Log", "Inflation"],
+      "rows": [
+        {
+          "label": "Data Collection",
+          "type": "pie",
+          "cells": [
+            { "lastPeriod": 90, "currentPeriod": 95 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 85 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 85 },
+            { "lastPeriod": 100, "currentPeriod": 100 }
+          ]
+        },
+        {
+          "label": "Data Validation",
+          "type": "pie",
+          "cells": [
+            { "lastPeriod": 90, "currentPeriod": 95 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 85 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 100 },
+            { "lastPeriod": 100, "currentPeriod": 100 }
+          ]
+        },
+        {
+          "label": "Due Date",
+          "type": "text",
+          "cells": ["Done", "Done", "TBD", "Done", "TBD", "Done"]
+        }
+      ]
+    }
+  ]
+}
